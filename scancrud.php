@@ -19,19 +19,23 @@ include($path_lib."permissions.inc");
 require_once($path_func."/scans.inc");
 
 if (empty($thisaction) || $thisaction == "delete" || $thisaction == "uploading"){
-    ksort($arr_scans_mime);
+
+    $extensions =  array_change_key_case(array_combine(MimeType::allowedExtensions(), MimeType::allowedExtensions()), CASE_UPPER);
+    $documents = DocumentType::scanTypes();
 
     $thisheader = array(
-        "file"      => array("", array_change_key_case(array_combine(array_keys($arr_scans_mime), array_keys($arr_scans_mime)), CASE_UPPER)),
+        "file"      => array("", $extensions),
         "date_scan" => array("sc.date_scan", "d"),
         "plate"     => array("ca.plate", "y"),
         "user"      => array("u.name", "y"),
-        "type"      => array("sc.doctype", $arr_doctypes),
+        "type"      => array("sc.doctype", $documents),
         "description" => array("sc.description", "y"),
         "date_doc"  => array("sc.date_doc", "d"),
         "actions"   => array("", "n")
     ); # header array for this page, format : "name" => array("db table.field", "searchable or not")
+
     $thisdefault = "date_scan.desc"; # default order value (headername.direction)
+
 }elseif ($thisaction == "view" || $thisaction == "upload" || $thisaction == "add" || $thisaction == "edit" || $thisaction == "change"){
     # check GET vars
     $thisid = (isset($_GET[$thispid]) && ctype_digit($_GET[$thispid])) ? $_GET[$thispid] : false;
@@ -82,9 +86,10 @@ if (empty($thisaction) || $thisaction == "delete" || $thisaction == "uploading")
 ##### /INTERFACE CONFIG #####
 else{
     echo '<meta http-equiv="refresh" content="0; URL='.urls(array("p" => $thispage), 'c').'" />';
-    exit();
+    exit;
 }
-$thisfirsttable = array_values($thistables); $thisfirsttable = $thisfirsttable[0];
+
+$thisfirsttable = reset($thistables);
 
 # Add or Change
 if (($thisaction == "add" || $thisaction == "change") && isset($_POST)){

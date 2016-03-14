@@ -408,6 +408,8 @@ class MimeType
                 'rar' => array('application/x-rar-compressed'),
                 'tar' => array('application/x-tar'),
             );
+
+            ksort(self::$mimetypes);
         }
     }
 
